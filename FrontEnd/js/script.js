@@ -58,17 +58,17 @@ const getCategory = async () => {
 };
 getCategory();
 
-categoryContainer.addEventListener("click", (event) => {
-  const allButtons = document.querySelectorAll(".filters button");
-  if (event.target.getAttribute("attribut-category")) {
+categoryContainer.addEventListener('click', (event) => {
+  const allButtons = document.querySelectorAll('.filters button');
+  if (event.target.getAttribute('attribut-category')) {
     allButtons.forEach((button) => {
-      button.classList.remove("active-filter");
-    })
-    const categoryId = parseInt(event.target.getAttribute("attribut-category"))
-    event.target.classList.add("active-filter");
+      button.classList.remove('active-filter');
+    });
+    const categoryId = parseInt(event.target.getAttribute('attribut-category'));
+    event.target.classList.add('active-filter');
     FilterWorksByCategory(categoryId);
   }
-})
+});
 
 const FilterWorksByCategory = (categoryId) => {
   gallery.innerHTML = ''; //Efface le contenue de la gallerie
