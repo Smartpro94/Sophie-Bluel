@@ -1,6 +1,6 @@
 // Attendre que le DOM soit entièrement chargé avant d'attacher l'écouteur d'événements
 document.addEventListener("DOMContentLoaded", function() {
-  const form = document.querySelector("#contact .login");  
+  const form = document.querySelector(".contact .login");  
   const connexionAlert = document.createElement("div");  // Crée un nouvel élément div pour les alertes de connexion
   connexionAlert.id = "connexionAlert";  // Attribue un ID à la nouvelle div
   form.appendChild(connexionAlert);  // Ajoute la div d'alerte au formulaire
@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", function() {
           // Si la connexion est réussie :
           const responseData = await response.json();  // Analyse la réponse JSON
           const token = responseData.token;  // Extrait le token
-          localStorage.setItem("Token", token);  // Stocke le token dans le localStorage
+          sessionStorage.setItem("Token", token);  // Stocke le token dans le sessionStorage
           window.location.href = "index.html";  // Redirige vers la page principale
       } catch (error) {
           console.error("Erreur lors de la connexion :", error);

@@ -18,13 +18,17 @@
     ></script>
   </head>
   <body>
-    <header>
+    <div class="edition" style="display: none">
+      <i class="fa-solid fa-pen-to-square"></i>
+      <p class="color">Mode édition</p>
+    </div>
+    <header class="header-edition">
       <h1>Sophie Bluel <span>Architecte d'intérieur</span></h1>
       <nav>
         <ul>
           <li>projets</li>
           <li>contact</li>
-          <li><a href="./login.html">login</a></li>
+          <li><a href="./login.html" id="logout">login</a></li>
           <li><img src="./assets/icons/instagram.png" alt="Instagram" /></li>
         </ul>
       </nav>
@@ -50,35 +54,76 @@
           <p>
             En cas de besoin, une équipe pluridisciplinaire peut-être constituée
             : architecte DPLG, décorateur(trice)
-          </p> 
+          </p>
         </article>
       </section>
       <section id="portfolio">
         <div class="title-project">
           <h2>Mes Projets</h2>
-          <a href="#modal">
+          <a href="#modal" class="js-modal" style="display: none">
             <i class="fa-solid fa-pen-to-square"></i>
             modifier
           </a>
         </div>
-        <aside id="modal">
-          <div class="modal_modifier" >
+        <aside id="modal" style="display: none">
+          <!--Modale 1-->
+          <div class="modal_modifier js-modal-1">
             <div class="modal-icon">
               <i class="fa-solid fa-xmark fa-xl"></i>
             </div>
             <div class="modal-title">
               <h2>Galerie photo</h2>
             </div>
-            <hr>
-            <form action="#" method="post" class="modal-form">
-              <input type="submit" value="Ajouter une photo">
-            </form>
+            <div class="galleryModal"></div>
+            <hr />
+            <button class="modal-button">Ajouter une photo</button>
+          </div>
+          <!--Modale 2-->
+          <div class="modal_modifier js-modal-2" style="display: none">
+            <div class="modal-arrow">
+              <i class="fa-solid fa-arrow-left fa-xl"></i>
+            </div>
+            <div class="modal-icon js-icon">
+              <i class="fa-solid fa-xmark fa-xl"></i>
+            </div>
+            <div class="modal-title">
+              <h2>Ajout photo</h2>
+            </div>
+            <div class="contact">
+              <form action="#" method="post" class="modal-form">
+                <div class="button-file">
+                  <i class="fa-regular fa-image"></i>
+                  <button>+ Ajouter photo</button>
+                  <input type="file" id="fileInput" style="display: none" />
+                  <img id="preview" alt="Image Preview" style="display: none" />
+                  <p>jpg, png : 4mo max</p>
+                </div>
+                <label for="text">Titre</label>
+                <input type="text" id="title" />
+                <label for="pays">Catégorie</label>
+                <select name="categorie" id="categorie">
+                  <option value="" hidden selected disabled></option>
+                  <option value="Objets">Objets</option>
+                  <option value="Appartements">Appartements</option>
+                  <option value="Hotels_&_restaurants">
+                    Hotels & restaurants
+                  </option>
+                </select>
+                <i class="fa-solid fa-chevron-down fa-xs"></i>
+                <hr />
+                <input
+                  type="submit"
+                  value="Valider"
+                  id="input-color-validation"
+                />
+              </form>
+            </div>
           </div>
         </aside>
         <div class="filters" id="categories"></div>
         <div class="gallery"></div>
       </section>
-      <section id="contact">
+      <section class="contact" id="contact">
         <h2>Contact</h2>
         <p>Vous avez un projet ? Discutons-en !</p>
         <form action="#" method="post">
@@ -92,7 +137,6 @@
         </form>
       </section>
     </main>
-   
 
     <footer>
       <nav>

@@ -53,6 +53,24 @@ body {
 	font-family: 'Work Sans' ;
 	font-size: 14px;
 }
+.edition {
+	background-color: black;
+	width: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	height: 59px;
+	box-sizing: border-box;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 10px;
+}
+.edition i, .color {
+	color: white;
+	font-size: 16px;
+	font-weight: 400;
+}
 header {
 	display: flex;
 	justify-content: space-between;
@@ -61,6 +79,10 @@ header {
 header a {
 	text-decoration: none;
 	color: inherit;
+}
+.header-edition {
+	margin-top: 100px;
+	
 }
 section {
 	margin: 50px 0
@@ -150,24 +172,33 @@ li:hover {
 	justify-content: center;
 	align-items: center;
 	background: rgba(0,0,0, 0.3);
+	margin: auto;
 }
 .modal_modifier {
 	width: 630px;
-	height: 688px;
+	height: 648px;
 	padding: 35px;
 	border-radius: 10px;
 	background: white;
 	max-width: calc(100vw - 20px);
 	max-height: calc(100vh - 20px);
+	display: flex;
+	flex-direction: column;
+}
+.modal-arrow {
+	display: flex;
+	justify-content: flex-start;
+	cursor: pointer;
 }
 .modal-icon {
 	display: flex;
 	justify-content: flex-end;
+	cursor: pointer;
 }
 .modal-title {
 	display: flex;
 	justify-content: center;
-	margin-top: 25px;
+	margin-top: 12px;
 }
 .modal-title h2 {
 	color: black;
@@ -182,10 +213,51 @@ li:hover {
 	display: flex;
 	justify-content: center;
 	width: 70%;
+	margin-top: 60px;
 }
-.modal-form {
+.modal-button {
 	display: flex;
 	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+}
+
+.galleryModal {
+	width: 100%;
+	display: grid;
+	align-items: center;
+	grid-template-columns: 1fr 1fr 1fr 1fr 1fr;
+	grid-row-gap: 20px;
+	padding-left: 92px;
+	padding-right: 83px;
+	box-sizing: border-box;
+	margin-top: 60px;
+}
+.galleryModal figure{
+	width: 78px;
+	height: 104px;
+}
+.galleryModal img {
+	width: 100%;
+}
+.galleryModal div {
+	position: relative;
+	bottom: 102px;
+	left: 55px;
+	background-color: black;
+	width: 14px;
+	height: 14px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border-radius: 2px;
+	border: 2px solid;
+}
+.galleryModal i {
+	color: white;
+	display: flex;
+	justify-content: center;
+	align-items: center;
 }
 
 .gallery {
@@ -227,53 +299,87 @@ li:hover {
 }
 #contact {
 	width: 50%;
+	font-size: 1.1em;
+}
+.contact {
+	width: 75%;
 	margin: auto;
 }
-#contact > * {
+.contact > * {
 	text-align: center;
 
 }
-#contact h2{
+.contact h2{
 	margin-bottom: 20px;
 }
-#contact #titre {
+.contact hr {
+	width: 100%;
+}
+.contact #titre {
 	margin-top: 150px;
 }
-#contact form {
+.contact form {
 	text-align: left;
 	margin-top:30px;
 	display: flex;
 	flex-direction: column;
 }
 
-#contact input {
+.contact input {
 	height: 50px;
-	font-size: 1.2em;
 	border: none;
 	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+	font-size: 1em;
+	padding-left: 10px;
 }
-#contact label {
+.contact label {
 	margin: 2em 0 1em 0;
+	font-weight: 500;
+	font-size: 1.1em;
 }
-#contact textarea {
+.contact textarea {
 	border: none;
 	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
 }
 
-input[type="submit"]{
+input[type="submit"], .modal-button{
 	font-family: 'Syne';
 	font-weight: 700;
 	color: white;
 	background-color: #1D6154;
 	margin : 2em auto ;
-	width: 180px;
+	width: 230px;
+	height: 50px;
 	text-align: center;
 	border-radius: 60px ;
+	font-size: 1.2em;
+	border: none;
 }
-#contact a {
+.contact a {
 	display: flex;
 	justify-content: center;
 	color: black;
+}
+.contact select {
+	border: none;
+	outline: none; /* Enlève le contour qui apparaît lors de la sélection */
+	background: none;
+	height: 50px;
+	appearance: none; /* Enlève l'apparence par défaut du navigateur */
+	-webkit-appearance: none; /* Enlève l'apparence par défaut dans les navigateurs WebKit */
+	-moz-appearance: none; /* Enlève l'apparence par défaut dans Firefox */
+	padding: 10px;
+	box-shadow: 0px 4px 14px rgba(0, 0, 0, 0.09);
+}
+.contact .fa-chevron-down {
+	color: #6C6C6C;
+	position: relative;
+	bottom: 25px;
+	left: 41.5em;
+}
+#input-color-validation {
+	background-color: #A7A7A7;
+	cursor: pointer;
 }
 footer nav ul {
 	display: flex;
@@ -284,3 +390,44 @@ footer nav ul {
 	margin-top: 400px;
 }
 
+.button-file {
+	z-index: 0;
+	height: 169px;
+	display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+	background-color: #E8F1F6;
+	border: none;
+	gap: 8px;
+}
+.button-file button {
+	z-index: 1;
+	width: 185px;
+	border-radius: 50px;
+	height: 36px;
+	background-color: #CBD6DC;
+	border: none;
+	color: #306685;
+	font-size: 1.2em;
+	cursor: pointer;
+}
+.button-file p {
+	z-index: 0;
+	font-size: 0.8em;
+}
+.fa-image {
+	width: 76px;
+	height: 76px;
+	font-size: 5.1em;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 5px;
+	color: #B9C5CC;
+}
+#preview {
+	width: 30%;
+	height: 100%;
+	object-fit: cover;
+}
