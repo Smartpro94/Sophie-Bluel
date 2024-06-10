@@ -3,14 +3,14 @@
 const gallery = document.querySelector('.gallery');
 const categoryContainer = document.getElementById('categories');
 const galleryModal = document.querySelector('.galleryModal');
-var url = 'http://localhost:5678/api/works/id';
+const BASE_URL = 'http://localhost:5678/api/';
 
 let allWorks = [];
 let allCategory = [];
 
 const getWorks = async () => {
   try {
-    const response = await fetch('http://localhost:5678/api/works');
+    const response = await fetch(`${BASE_URL}works`);
     const works = await response.json();
     //on vérifie que le tableau est vide d'abord
     allWorks.length = 0;
@@ -41,7 +41,7 @@ const createWorksFigure = (work) => {
 
 const getCategory = async () => {
   try {
-    const response = await fetch('http://localhost:5678/api/categories');
+    const response = await fetch(`${BASE_URL}categories`);
     const categories = await response.json();
     categories.unshift({
       id: 0,
@@ -132,13 +132,13 @@ document
       const figure = event.target.closest('figure');
       const workId = figure.getAttribute('work-id');
       console.log("l'Id est :", workId);
-      deleteData(`http://localhost:5678/api/works/${workId}`, figure);
+      deleteData(`${BASE_URL}works/${workId}`, figure);
     }
   });
 
 const getWorksModal = async () => {
   try {
-    const response = await fetch('http://localhost:5678/api/works');
+    const response = await fetch(`${BASE_URL}works`);
     const works = await response.json();
     //on vérifie que le tableau est vide d'abord
     allWorks.length = 0;
@@ -381,7 +381,7 @@ const connect = async () => {
 
 //Permet d'ajouter un work dans la BDD ensuite dans la gallery
 const postDataBdd = async (token, formData, title, optionName) => {
-  const urlPostWork = 'http://localhost:5678/api/works';
+  const urlPostWork = `${BASE_URL}works`;
   try {
     const response = await fetch(urlPostWork, {
       method: 'POST',
