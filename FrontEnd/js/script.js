@@ -48,10 +48,11 @@ const getCategory = async () => {
       name: 'Tous',
     });
     console.log("L'ensemble des catégorie est : ", categories);
+    allCategory = categories;
     for (let category of categories) {
       const button = document.createElement('button');
       button.innerHTML = category.name;
-      button.setAttribute('attribut-category', category.id);
+      button.setAttribute('data-category', category.id);
       categoryContainer.appendChild(button);
     }
   } catch (error) {
@@ -62,11 +63,11 @@ getCategory();
 
 categoryContainer.addEventListener('click', (event) => {
   const allButtons = document.querySelectorAll('.filters button');
-  if (event.target.getAttribute('attribut-category')) {
+  if (event.target.getAttribute('data-category')) {
     allButtons.forEach((button) => {
       button.classList.remove('active-filter');
     });
-    const categoryId = parseInt(event.target.getAttribute('attribut-category'));
+    const categoryId = parseInt(event.target.getAttribute('data-category'));
     event.target.classList.add('active-filter');
     FilterWorksByCategory(categoryId);
   }
@@ -88,6 +89,25 @@ const FilterWorksByCategory = (categoryId) => {
       gallery.appendChild(figure);
     }
   }
+};
+
+const selectCategory = () => {
+  document.querySelector('#categorie').innerHTML = '';
+
+  option = document.createElement('option');
+  document.querySelector('#categorie').appendChild(option);
+  console.log(allCategory);
+  const categoriesWithoutTous = allCategory.filter(
+    (categorie) => categorie.id != 0
+  );
+
+  categoriesWithoutTous.forEach((categorie) => {
+    option = document.createElement('option');
+    option.value = categorie.name;
+    option.innerText = categorie.name;
+    option.id = categorie.id;
+    document.querySelector('#categorie').appendChild(option);
+  });
 };
 
 const createWorksModal = (work) => {
@@ -167,6 +187,7 @@ const openModal = function (e) {
   modal.querySelector('.js-icon').addEventListener('click', closeModal);
   modal.querySelector('.js-modal-1').addEventListener('click', stopPropagation);
   modal.querySelector('.js-modal-2').addEventListener('click', stopPropagation);
+  selectCategory();
 };
 
 const closeModal = function (e) {
@@ -247,7 +268,17 @@ document
   .getElementById('fileInput')
   .addEventListener('change', function (event) {
     const file = event.target.files[0];
-    if (file) {
+    const ACCEPTED_EXTENSIONS = ['png', 'jpg'];
+    // Stocker le nom du fichier dans une variable
+    const fileName = file.name;
+    console.log('Nom du fichier sélectionné:', fileName);
+    const extension = fileName.split('.').pop().toLowerCase();
+
+    if (
+      file &&
+      file.size <= 4 * 1024 * 1024 &&
+      ACCEPTED_EXTENSIONS.includes(extension)
+    ) {
       const reader = new FileReader();
       reader.onload = function (e) {
         const img = document.getElementById('preview');
@@ -258,10 +289,8 @@ document
         document.querySelector('.button-file p').style.display = 'none';
       };
       reader.readAsDataURL(file);
-
-      // Stocker le nom du fichier dans une variable
-      const fileName = file.name;
-      console.log('Nom du fichier sélectionné:', fileName);
+    } else {
+      console.error("L'image ne respecte pas les critères");
     }
   });
 
@@ -302,37 +331,59 @@ for (let select of selects) {
   select.addEventListener('input', changerCouleurBouton);
 }
 
-const formIndex = document.querySelector('.modal-form');
 const connexionAlert = document.createElement('div'); // Crée un nouvel élément div pour les alertes de connexion
 connexionAlert.id = 'connexionAlert'; // Attribue un ID à la nouvelle div
-formIndex.appendChild(connexionAlert); // Ajoute la div d'alerte au formulaire
+form.appendChild(connexionAlert); // Ajoute la div d'alerte au formulaire
 
-formIndex.addEventListener('submit', async function (e) {
+form.addEventListener('submit', async function (e) {
   e.preventDefault(); // Empêche le comportement de soumission de formulaire par défaut
   await connect(); // Appelle la fonction connect
 });
 
+//Pour transformer l'image en blob (binary large object) afin de faciliter le televersement.
+const dataURLtoBlob = (dataurl) => {
+  const arr = dataurl.split(','),
+    mime = arr[0].match(/:(.*?);/)[1],
+    bstr = atob(arr[1]);
+  let n = bstr.length,
+    u8arr = new Uint8Array(n);
+  while (n--) {
+    u8arr[n] = bstr.charCodeAt(n);
+  }
+  return new Blob([u8arr], { type: mime });
+};
+
 const connect = async () => {
   const token = sessionStorage.getItem('Token');
-  const fileInput = document.getElementById('fileInput').files[0];
+
+  const select = document.getElementById('categorie');
   const title = document.getElementById('title').value;
-  const categoryId = document.getElementById('categorie').value;
+  const optionName = select.options[select.selectedIndex].innerText;
+  const optionId = select.options[select.selectedIndex].id;
 
-  const formData = new FormData();
-  formData.append('image', fileInput);
-  formData.append('title', title);
-  formData.append('categoryId', categoryId);
-  console.log(formData);
+  const fileInput = document.getElementById('fileInput');
+  const selectedFile = fileInput.files[0];
 
-  // Log FormData contents for debugging (remove in production)
-  for (let [key, value] of formData.entries()) {
-    console.log(`${key}: ${value}`);
-  }
+  const reader = new FileReader();
+  reader.onloadend = async function (event) {
+    const base64String = event.target.result;
+    var blobImg = dataURLtoBlob(base64String);
 
-  const url = 'http://localhost:5678/api/works';
+    const formData = new FormData();
+    formData.append('image', blobImg);
+    formData.append('title', title);
+    formData.append('category', optionId);
 
+    postDataBdd(token, formData, title, optionName);
+  };
+  reader.readAsDataURL(selectedFile);
+};
+
+//Permet d'ajouter un work dans la BDD ensuite dans la gallery
+const postDataBdd = async (token, formData, title, optionName) => {
+  const urlPostWork = 'http://localhost:5678/api/works';
   try {
-    const response = await fetch(url, {
+    const response = await fetch(urlPostWork, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${token}`,
@@ -341,19 +392,25 @@ const connect = async () => {
     });
 
     if (!response.ok) {
-      connexionAlert.style.visibility = 'visible';
-      connexionAlert.style.backgroundColor = 'rgba(200,0,0,0.5)';
-      connexionAlert.textContent = `Erreur : ${response.statusText}`;
-      setTimeout(() => {
-        connexionAlert.style.visibility = 'hidden';
-      }, 5000);
+      console.error(`Erreur HTTP : ${response.status}`);
       throw new Error(`Erreur HTTP : ${response.status}`);
     }
 
     const responseData = await response.json();
+    alert(title + ' a bien été publié');
     console.log('Successful response:', responseData);
+    addToWorksData(responseData, optionName);
     window.location.href = 'index.html';
   } catch (error) {
     console.error('Erreur lors de la connexion :', error);
   }
+};
+
+const addToWorksData = (data, optionName) => {
+  newWork = {};
+  newWork.title = data.title;
+  newWork.id = data.id;
+  newWork.category = { id: data.optionId, name: optionName };
+  newWork.imageUrl = data.imageUrl;
+  allWorks.push(newWork);
 };
