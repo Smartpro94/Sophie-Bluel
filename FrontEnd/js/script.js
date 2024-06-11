@@ -132,6 +132,7 @@ document
       const figure = event.target.closest('figure');
       const workId = figure.getAttribute('work-id');
       console.log("l'Id est :", workId);
+      getWorks();
       deleteData(`${BASE_URL}works/${workId}`, figure);
     }
   });
@@ -380,7 +381,7 @@ const connect = async () => {
 };
 
 //Permet d'ajouter un work dans la BDD ensuite dans la gallery
-const postDataBdd = async (token, formData, title, optionName) => {
+/*const postDataBdd = async (token, formData, title, optionName) => {
   const urlPostWork = `${BASE_URL}works`;
   try {
     const response = await fetch(urlPostWork, {
@@ -401,6 +402,32 @@ const postDataBdd = async (token, formData, title, optionName) => {
     console.log('Successful response:', responseData);
     addToWorksData(responseData, optionName);
     window.location.href = 'index.html';
+  } catch (error) {
+    console.error('Erreur lors de la connexion :', error);
+  }
+};*/
+
+//Permet d'ajouter un work dans la BDD ensuite dans la gallery
+const postDataBdd = async (token, formData, title, optionName) => {
+  const urlPostWork = `${BASE_URL}works`;
+  try {
+    const response = await fetch(urlPostWork, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: formData,
+    });
+    if (!response.ok) {
+      console.error(`Erreur HTTP : ${response.status}`);
+      throw new Error(`Erreur HTTP : ${response.status}`);
+    }
+    const responseData = await response.json();
+    alert(title + ' a bien été publié');
+    console.log('Successful response:', responseData);
+    addToWorksData(responseData, optionName);
+    getWorks();
+    document.querySelector('#modal').style.display = 'none';
   } catch (error) {
     console.error('Erreur lors de la connexion :', error);
   }
