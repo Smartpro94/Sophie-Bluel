@@ -35,10 +35,7 @@
     </header>
     <main>
       <section id="introduction">
-        <figure>
-          <img src="./assets/images/sophie-bluel.png" alt="" />
-        </figure>
-        <article>
+        <div>
           <h2>Designer d'espace</h2>
           <p>
             Je raconte votre histoire, je valorise vos idées. Je vous accompagne
@@ -55,7 +52,10 @@
             En cas de besoin, une équipe pluridisciplinaire peut-être constituée
             : architecte DPLG, décorateur(trice)
           </p>
-        </article>
+        </div>
+        <figure>
+          <img src="./assets/images/sophie-bluel.png" alt="" />
+        </figure>
       </section>
       <section id="portfolio">
         <div class="title-project">
@@ -95,10 +95,15 @@
                   <i class="fa-regular fa-image"></i>
                   <button>+ Ajouter photo</button>
                   <input type="file" id="fileInput" style="display: none" />
-                  <img id="preview" alt="Image Preview" style="display: none" />
+                  <img
+                    id="preview"
+                    alt="Image Preview"
+                    style="display: none"
+                    src="#"
+                  />
                   <p>jpg, png : 4mo max</p>
                 </div>
-                <label for="text">Titre</label>
+                <label for="title">Titre</label>
                 <input type="text" id="title" />
                 <label for="categorie">Catégorie</label>
                 <select name="categorie" id="categorie"></select>

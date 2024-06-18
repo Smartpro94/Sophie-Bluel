@@ -132,7 +132,6 @@ document
       const figure = event.target.closest('figure');
       const workId = figure.getAttribute('work-id');
       console.log("l'Id est :", workId);
-      getWorks();
       deleteData(`${BASE_URL}works/${workId}`, figure);
     }
   });
@@ -169,11 +168,12 @@ const deleteData = async (urlId, figure) => {
       throw new Error(`Erreur http: ${response.status}`);
     }
     figure.remove();
+    alert('Element supprimé');
+    gallery.innerHTML = '';
+    getWorks();
   } catch (error) {
     console.error("Erreur lorsqu'on essaye de supprimer les works");
   }
-  gallery.innerHTML = '';
-  getWorks();
 };
 
 let modal = null;
@@ -188,16 +188,20 @@ const openModal = function (e) {
   modal.querySelector('.js-icon').addEventListener('click', closeModal);
   modal.querySelector('.js-modal-1').addEventListener('click', stopPropagation);
   modal.querySelector('.js-modal-2').addEventListener('click', stopPropagation);
+  document.querySelector('.js-modal-1').style.display = 'flex';
+  document.querySelector('.js-modal-2').style.display = 'none';
   selectCategory();
+  resetInputs();
 };
 
 const closeModal = function (e) {
   if (modal === null) return;
   e.preventDefault();
+  resetInputs();
   modal.style.display = 'none';
   modal.removeEventListener('click', closeModal);
   modal.querySelector('.modal-icon').removeEventListener('click', closeModal);
-  modal = null;
+  modal.querySelector('.js-icon').removeEventListener('click', closeModal);
   document.querySelector('.js-modal-1').style.display = 'flex';
   document.querySelector('.js-modal-2').style.display = 'none';
 };
@@ -223,11 +227,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // Affiche les éléments qui étaient masqués
     document.querySelector('.edition').style.display = null;
     document.querySelector('.js-modal').style.display = null;
+    categoryContainer.style.display = 'none';
     logout.innerHTML = 'logout';
   } else {
     // Si le token n'est pas présent, masque les éléments
     document.querySelector('.edition').style.display = 'none';
     document.querySelector('.js-modal').style.display = 'none';
+    categoryContainer.style.display = 'flex';
   }
 });
 
@@ -245,6 +251,7 @@ logout.addEventListener('click', () => {
 document.querySelector('.modal-button').addEventListener('click', function () {
   document.querySelector('.js-modal-1').style.display = 'none';
   document.querySelector('.js-modal-2').style.display = 'flex';
+  resetInputs();
 });
 
 document.querySelector('.modal-arrow').addEventListener('click', function () {
@@ -342,16 +349,9 @@ form.addEventListener('submit', async function (e) {
 });
 
 //Pour transformer l'image en blob (binary large object) afin de faciliter le televersement.
-const dataURLtoBlob = (dataurl) => {
-  const arr = dataurl.split(','),
-    mime = arr[0].match(/:(.*?);/)[1],
-    bstr = atob(arr[1]);
-  let n = bstr.length,
-    u8arr = new Uint8Array(n);
-  while (n--) {
-    u8arr[n] = bstr.charCodeAt(n);
-  }
-  return new Blob([u8arr], { type: mime });
+const convertDataURLToBlob = async (dataurl) => {
+  const res = await fetch(dataurl);
+  return await res.blob();
 };
 
 const connect = async () => {
@@ -368,47 +368,20 @@ const connect = async () => {
   const reader = new FileReader();
   reader.onloadend = async function (event) {
     const base64String = event.target.result;
-    var blobImg = dataURLtoBlob(base64String);
+    const blobImg = await convertDataURLToBlob(base64String);
 
     const formData = new FormData();
     formData.append('image', blobImg);
     formData.append('title', title);
     formData.append('category', optionId);
 
-    postDataBdd(token, formData, title, optionName);
+    uploadWorkToDatabase(token, formData, title, optionName);
   };
   reader.readAsDataURL(selectedFile);
 };
 
 //Permet d'ajouter un work dans la BDD ensuite dans la gallery
-/*const postDataBdd = async (token, formData, title, optionName) => {
-  const urlPostWork = `${BASE_URL}works`;
-  try {
-    const response = await fetch(urlPostWork, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      body: formData,
-    });
-
-    if (!response.ok) {
-      console.error(`Erreur HTTP : ${response.status}`);
-      throw new Error(`Erreur HTTP : ${response.status}`);
-    }
-
-    const responseData = await response.json();
-    alert(title + ' a bien été publié');
-    console.log('Successful response:', responseData);
-    addToWorksData(responseData, optionName);
-    window.location.href = 'index.html';
-  } catch (error) {
-    console.error('Erreur lors de la connexion :', error);
-  }
-};*/
-
-//Permet d'ajouter un work dans la BDD ensuite dans la gallery
-const postDataBdd = async (token, formData, title, optionName) => {
+const uploadWorkToDatabase = async (token, formData, title, optionName) => {
   const urlPostWork = `${BASE_URL}works`;
   try {
     const response = await fetch(urlPostWork, {
@@ -425,19 +398,33 @@ const postDataBdd = async (token, formData, title, optionName) => {
     const responseData = await response.json();
     alert(title + ' a bien été publié');
     console.log('Successful response:', responseData);
-    addToWorksData(responseData, optionName);
-    getWorks();
+    gallery.innerHTML = ''; //Vide la galerie
+    galleryModal.innerHTML = '';
+    appendGallery(responseData, optionName);
+    await getWorks();
+    await getWorksModal();
     document.querySelector('#modal').style.display = 'none';
   } catch (error) {
     console.error('Erreur lors de la connexion :', error);
   }
 };
 
-const addToWorksData = (data, optionName) => {
-  newWork = {};
-  newWork.title = data.title;
-  newWork.id = data.id;
-  newWork.category = { id: data.optionId, name: optionName };
-  newWork.imageUrl = data.imageUrl;
-  allWorks.push(newWork);
+const appendGallery = (data, optionName) => {
+  let workToAdd = {};
+  workToAdd.title = data.title;
+  workToAdd.id = data.id;
+  workToAdd.category = { id: data.optionId, name: optionName };
+  workToAdd.imageUrl = data.imageUrl;
+  allWorks.push(workToAdd);
+};
+
+const resetInputs = () => {
+  const imgPreview = document.getElementById('preview');
+  document.getElementById('title').value = '';
+  fileInput.value = ''; //Initialise l'élement input
+  imgPreview.src = '';
+  imgPreview.style.display = 'none';
+  document.querySelector('.button-file button').style.display = 'inline';
+  document.querySelector('.button-file .fa-image').style.display = 'inline';
+  document.querySelector('.button-file p').style.display = 'flex';
 };
