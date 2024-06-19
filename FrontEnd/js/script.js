@@ -8,6 +8,7 @@ const BASE_URL = 'http://localhost:5678/api/';
 let allWorks = [];
 let allCategory = [];
 
+// Fonction pour récupérer et afficher les travaux
 const getWorks = async () => {
   try {
     const response = await fetch(`${BASE_URL}works`);
@@ -26,6 +27,7 @@ const getWorks = async () => {
 };
 getWorks();
 
+// Fonction pour créer une figure HTML pour un travail
 const createWorksFigure = (work) => {
   const figure = document.createElement('figure');
   const img = document.createElement('img');
@@ -39,6 +41,7 @@ const createWorksFigure = (work) => {
   return figure;
 };
 
+// Fonction pour récupérer et afficher les catégories
 const getCategory = async () => {
   try {
     const response = await fetch(`${BASE_URL}categories`);
@@ -61,6 +64,7 @@ const getCategory = async () => {
 };
 getCategory();
 
+// Gestionnaire d'événements pour le clic sur les boutons de catégorie
 categoryContainer.addEventListener('click', (event) => {
   const allButtons = document.querySelectorAll('.filters button');
   if (event.target.getAttribute('data-category')) {
@@ -73,6 +77,7 @@ categoryContainer.addEventListener('click', (event) => {
   }
 });
 
+// Fonction pour filtrer les travaux par catégorie
 const FilterWorksByCategory = (categoryId) => {
   gallery.innerHTML = ''; //Efface le contenue de la gallerie
   if (categoryId === 0) {
@@ -91,25 +96,7 @@ const FilterWorksByCategory = (categoryId) => {
   }
 };
 
-const selectCategory = () => {
-  document.querySelector('#categorie').innerHTML = '';
-
-  option = document.createElement('option');
-  document.querySelector('#categorie').appendChild(option);
-  console.log(allCategory);
-  const categoriesWithoutTous = allCategory.filter(
-    (categorie) => categorie.id != 0
-  );
-
-  categoriesWithoutTous.forEach((categorie) => {
-    option = document.createElement('option');
-    option.value = categorie.name;
-    option.innerText = categorie.name;
-    option.id = categorie.id;
-    document.querySelector('#categorie').appendChild(option);
-  });
-};
-
+//Crée des figures de travaux avec une icône de suppression pour chaque travail en modal
 const createWorksModal = (work) => {
   const figure = document.createElement('figure');
   figure.setAttribute('work-id', work.id);
@@ -125,35 +112,7 @@ const createWorksModal = (work) => {
   return figure;
 };
 
-document
-  .querySelector('.galleryModal')
-  .addEventListener('click', function (event) {
-    if (event.target.classList.contains('fa-trash-can')) {
-      const figure = event.target.closest('figure');
-      const workId = figure.getAttribute('work-id');
-      console.log("l'Id est :", workId);
-      deleteData(`${BASE_URL}works/${workId}`, figure);
-    }
-  });
-
-const getWorksModal = async () => {
-  try {
-    const response = await fetch(`${BASE_URL}works`);
-    const works = await response.json();
-    //on vérifie que le tableau est vide d'abord
-    allWorks.length = 0;
-    allWorks = works;
-    console.log("L'ensemble des works est :", works);
-    for (let work of works) {
-      const figure = createWorksModal(work);
-      galleryModal.appendChild(figure);
-    }
-  } catch (error) {
-    console.error('Erreur dans la récupération de works', error);
-  }
-};
-getWorksModal();
-
+//Supprime un travail de la base de données et de l'affichage côté client
 const deleteData = async (urlId, figure) => {
   var token = sessionStorage.getItem('Token');
   try {
@@ -174,6 +133,56 @@ const deleteData = async (urlId, figure) => {
   } catch (error) {
     console.error("Erreur lorsqu'on essaye de supprimer les works");
   }
+};
+
+document
+  .querySelector('.galleryModal')
+  .addEventListener('click', function (event) {
+    if (event.target.classList.contains('fa-trash-can')) {
+      const figure = event.target.closest('figure');
+      const workId = figure.getAttribute('work-id');
+      console.log("l'Id est :", workId);
+      deleteData(`${BASE_URL}works/${workId}`, figure);
+    }
+  });
+
+//Récupère et affiche les travaux dans une modal depuis l'API
+const getWorksModal = async () => {
+  try {
+    const response = await fetch(`${BASE_URL}works`);
+    const works = await response.json();
+    //on vérifie que le tableau est vide d'abord
+    allWorks.length = 0;
+    allWorks = works;
+    console.log("L'ensemble des works est :", works);
+    for (let work of works) {
+      const figure = createWorksModal(work);
+      galleryModal.appendChild(figure);
+    }
+  } catch (error) {
+    console.error('Erreur dans la récupération de works', error);
+  }
+};
+getWorksModal();
+
+//Remplit le sélecteur de catégories avec les options récupérées depuis allCategory, excluant la catégorie "Tous".
+const selectCategory = () => {
+  document.querySelector('#categorie').innerHTML = '';
+
+  option = document.createElement('option');
+  document.querySelector('#categorie').appendChild(option);
+  console.log(allCategory);
+  const categoriesWithoutTous = allCategory.filter(
+    (categorie) => categorie.id != 0
+  );
+
+  categoriesWithoutTous.forEach((categorie) => {
+    option = document.createElement('option');
+    option.value = categorie.name;
+    option.innerText = categorie.name;
+    option.id = categorie.id;
+    document.querySelector('#categorie').appendChild(option);
+  });
 };
 
 let modal = null;
@@ -237,6 +246,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 });
 
+//Au click sur le logout
 logout.addEventListener('click', () => {
   if (connected) {
     connected = false;
@@ -265,6 +275,7 @@ document
     e.preventDefault();
     document.getElementById('fileInput').click();
   });
+
 document
   .querySelector('.button-file .fa-image')
   .addEventListener('click', function (e) {
@@ -354,6 +365,7 @@ const convertDataURLToBlob = async (dataurl) => {
   return await res.blob();
 };
 
+//Envoie les données du formulaire pour créer un nouveau travail dans la base de données
 const connect = async () => {
   const token = sessionStorage.getItem('Token');
 
@@ -409,6 +421,7 @@ const uploadWorkToDatabase = async (token, formData, title, optionName) => {
   }
 };
 
+//Ajoute un nouveau travail à la liste allWorks après son ajout dans la base de données
 const appendGallery = (data, optionName) => {
   let workToAdd = {};
   workToAdd.title = data.title;
